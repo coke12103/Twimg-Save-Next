@@ -1,12 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const Module = require('module');
+const ClayApi = require('./api.js');
 
 module.exports = class ClayCore{
   constructor(){
     this.sources = {};
     this.follow = {};
     this.spells = [];
+
+    this.api = new ClayApi(this);
   }
 
   load_plugins_folder(orig_folder_path){
@@ -32,24 +35,24 @@ module.exports = class ClayCore{
       console.log(`find plugin info!: `, spell_path);
 
       try{
-        var spell = JSON.parse(fs.readFileSync(spell_path));
-        if(!spell) throw new Error('spell empty');
+        var loaded_spell = JSON.parse(fs.readFileSync(spell_path));
+        if(!loaded_spell) throw new Error('spell empty');
       }catch(err){
         console.warn(`parse or load failed!: ${spell_path}, ${err}`);
         continue;
       }
 
-      spell.dir = item_path;
+      loaded_spell.dir = item_path;
 
-      if(spell.spell_ver){
-        if(spell.type.source_addition) spell.type.source_addition.regexp = new RegExp(spell.type.source_addition.regexp, 'i');
+      if(loaded_spell.spell_ver){
+        if(loaded_spell.type.source_addition) loaded_spell.type.source_addition.regexp = new RegExp(loaded_spell.type.source_addition.regexp, 'i');
       }else{
-        if(spell.search_regexp) spell.search_regexp = new RegExp(spell.search_regexp, 'i');
-        spell.spell_ver = '';
+        if(loaded_spell.search_regexp) loaded_spell.search_regexp = new RegExp(loaded_spell.search_regexp, 'i');
+        loaded_spell.spell_ver = '';
       }
 
-      plugin_spell_list.push(spell);
-      console.log(`find plugin!: ${spell.name}`);
+      plugin_spell_list.push(loaded_spell);
+      console.log(`find plugin!: ${loaded_spell.name}`);
     }
 
     var loaded_spells = [];
@@ -120,10 +123,10 @@ module.exports = class ClayCore{
     // source.idがあればsource.execがあることは(プラグイン側に問題がなければ)保証されている
     if(source.exec && source.exec != "NONE"){
       console.log('v1 plugin exec.');
-      this.sources[source.id][source.exec](url, save_dir);
+      this.sources[source.id][source.exec].bind({Clay: this.api}, url, save_dir)();
     }else{
       console.log('v0 plugin exec.');
-      this.sources[source.id](url, save_dir);
+      this.sources[source.id].bind({Clay: this.api}, url, save_dir)();
     }
   }
 
@@ -131,6 +134,7 @@ module.exports = class ClayCore{
     try{
       var main_code = fs.readFileSync(main_path, 'utf-8');
     }catch(err){
+      console.log(err);
       throw err;
     }
 
