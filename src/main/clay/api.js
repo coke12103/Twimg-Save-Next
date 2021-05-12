@@ -2,7 +2,7 @@ const download = require('./download.js');
 
 module.exports = class Clay{
   constructor(clay_core){
-    this.core = clay_core;
+    this._core = clay_core;
   }
 
   trap(data){
@@ -10,7 +10,7 @@ module.exports = class Clay{
 
     console.log(`start trap!\n  code: ${data.code}`);
 
-    for(var spell of this.core.spells){
+    for(var spell of this._core.spells){
       if(!(spell.type && spell.type.follow) || spell.type.follow.code != data.code) continue;
 
       var follow = spell.type.follow;
@@ -19,7 +19,7 @@ module.exports = class Clay{
 
       // set_sns_type(follow.target_text);
 
-      this.core.follow[spell.id][follow.exec](data);
+      this._core.follow[spell.id][follow.exec](data);
       is_followed = true;
       break;
     }
