@@ -112,6 +112,21 @@ module.exports = class ClayCore{
     return source;
   }
 
+  exec_plugin(url, save_dir){
+    var source = this.find_source(url);
+
+    if(!source.id) return;
+
+    // source.idがあればsource.execがあることは(プラグイン側に問題がなければ)保証されている
+    if(source.exec && source.exec != "NONE"){
+      console.log('v1 plugin exec.');
+      this.sources[source.id][source.exec](url, save_dir);
+    }else{
+      console.log('v0 plugin exec.');
+      this.sources[source.id](url, save_dir);
+    }
+  }
+
   plugin_require(main_path, filename = ''){
     try{
       var main_code = fs.readFileSync(main_path, 'utf-8');
