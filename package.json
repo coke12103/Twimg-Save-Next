@@ -31,7 +31,13 @@
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^7.26.0",
     "eslint-plugin-vue": "^7.9.0",
-    "vue-cli-plugin-electron-builder": "~2.0.0"
+    "less": "^4.1.1",
+    "less-loader": "^7.3.0",
+    "style-loader": "^2.0.0",
+    "style-resources-loader": "^1.4.1",
+    "vue-cli-plugin-electron-builder": "~2.0.0",
+    "vue-cli-plugin-style-resources-loader": "~0.1.5",
+    "webpack": "^4.45.0"
   },
   "eslintConfig": {
     "root": true,
