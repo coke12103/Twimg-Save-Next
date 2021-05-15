@@ -8,11 +8,13 @@
   .status-card{
     font-size: 14px;
     color: rgba(41, 47, 51, 0.7);
+    user-select: none;
 
     .status-text{
       font-size: 14px;
       color: #000;
       margin-left: 5px;
+      user-select: text;
     }
   }
 </style>
