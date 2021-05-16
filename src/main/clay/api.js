@@ -30,7 +30,7 @@ module.exports = class Clay{
   }
 
   set_status_text(text){
-    console.log(text);
+    this._core.emit('status_text_update', text);
   }
 
   download(url, filename, save_dir, ref){

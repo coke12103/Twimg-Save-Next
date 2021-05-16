@@ -1,10 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const Module = require('module');
+const EventEmitter = require('events')
+
 const ClayApi = require('./api.js');
 
-module.exports = class ClayCore{
+module.exports = class ClayCore extends EventEmitter{
   constructor(){
+    super();
+
     this.sources = {};
     this.follow = {};
     this.spells = [];
@@ -44,8 +48,8 @@ module.exports = class ClayCore{
 
       loaded_spell.dir = item_path;
 
-      if(loaded_spell.spell_ver){
-        if(loaded_spell.type.source_addition) loaded_spell.type.source_addition.regexp = new RegExp(loaded_spell.type.source_addition.regexp, 'i');
+      if(loaded_spell.spell_ver && loaded_spell.type.source_addition){
+        loaded_spell.type.source_addition.regexp = new RegExp(loaded_spell.type.source_addition.regexp, 'i');
       }else{
         if(loaded_spell.search_regexp) loaded_spell.search_regexp = new RegExp(loaded_spell.search_regexp, 'i');
         loaded_spell.spell_ver = '';
