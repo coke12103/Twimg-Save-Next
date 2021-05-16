@@ -40,6 +40,10 @@ async function createWindow() {
 
 function init_core(){
   clay_core.load_plugins_folder('./plugins');
+
+  clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+
+  clay_core.on('status_text_update', console.log);
 }
 
 // Quit when all windows are closed.
