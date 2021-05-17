@@ -1,6 +1,6 @@
 <template>
   <ui-card class="status-card">
-    Status: <span class="status-text">{{status_text}}</span>
+    Status: <span class="status-text">{{ $store.state.status_text }}</span>
   </ui-card>
 </template>
 
@@ -22,9 +22,6 @@
 <script>
 export default{
   computed:{
-    status_text(){
-      return this.$store.state.status_text;
-    }
   }
 }
 </script>
