@@ -3,9 +3,13 @@
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import path from 'path';
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const ClayCore = require('./main/clay/core.js');
+
+let win;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -16,14 +20,17 @@ const clay_core = new ClayCore();
 
 async function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      // nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      worldSafeExecuteJavaScript: true,
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   })
 
@@ -39,11 +46,15 @@ async function createWindow() {
 }
 
 function init_core(){
+  // clay init
   clay_core.load_plugins_folder('./plugins');
+  clay_core.on('status_text_update', (arg) => { win.webContents.send('ipc-status-text-change', arg) });
 
-  clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+  // test
+  setTimeout(function(){
+    clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+  }, 2000);
 
-  clay_core.on('status_text_update', console.log);
 }
 
 // Quit when all windows are closed.

@@ -5,14 +5,29 @@
 </template>
 
 <script>
+import { onMounted } from 'vue';
+import store from './store';
+
 import StatusCard from './components/StatusCard.vue'
 
 export default {
   name: 'App',
   components: {
     StatusCard
+  },
+
+  setup(){
+    const setupEventListener = function(){
+      window.api.onStatusTextChange(function(text){
+        console.log(text);
+        store.commit('set_status_text', text);
+      });
+    };
+
+    onMounted(setupEventListener);
   }
 }
+
 </script>
 
 <style>
