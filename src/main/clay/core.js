@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const Module = require('module');
-const EventEmitter = require('events')
+const EventEmitter = require('events');
+const Stream = require('stream');
 
 const ClayApi = require('./api.js');
 
@@ -14,12 +15,21 @@ module.exports = class ClayCore extends EventEmitter{
     this.spells = [];
 
     this.api = new ClayApi(this);
+
+    this._stream = new Stream.Writable({
+        write: function(data, _, callback){
+          this.emit('console_log_update', data);
+          callback();
+        }.bind(this)
+    });
+
+    this.logger = new console.Console(this._stream);
   }
 
   load_plugins_folder(orig_folder_path){
     var folder_path = path.normalize(orig_folder_path);
 
-    console.log(`load plugins path: ${folder_path}`);
+    this.logger.log(`load plugins path: ${folder_path}`);
 
     if(!fs.existsSync(folder_path)) throw new Error('plugins folder not found');
     if(!fs.statSync(folder_path).isDirectory()) throw new Error('plugins folder path is not folder');
@@ -36,13 +46,13 @@ module.exports = class ClayCore extends EventEmitter{
       var spell_path = path.join(item_path, 'plugin-info.json');
       if(!(fs.existsSync(spell_path) && !fs.statSync(spell_path).isDirectory())) continue;
 
-      console.log(`find plugin info!: `, spell_path);
+      this.logger.log(`find plugin info!: `, spell_path);
 
       try{
         var loaded_spell = JSON.parse(fs.readFileSync(spell_path));
         if(!loaded_spell) throw new Error('spell empty');
       }catch(err){
-        console.warn(`parse or load failed!: ${spell_path}, ${err}`);
+        this.logger.log(`parse or load failed!: ${spell_path}, ${err}`);
         continue;
       }
 
@@ -56,7 +66,7 @@ module.exports = class ClayCore extends EventEmitter{
       }
 
       plugin_spell_list.push(loaded_spell);
-      console.log(`find plugin!: ${loaded_spell.name}`);
+      this.logger.log(`find plugin!: ${loaded_spell.name}`);
     }
 
     var loaded_spells = [];
@@ -66,26 +76,26 @@ module.exports = class ClayCore extends EventEmitter{
         if(spell.spell_ver){
           if(spell.type.source_addition){
             this.sources[spell.id] = this.plugin_require(path.join(spell.dir, spell.main));
-            console.log(`require to v1 plugin: ${spell.name}`);
+            this.logger.log(`require to v1 plugin: ${spell.name}`);
           }else if(spell.type.follow){
             this.follow[spell.id] = this.plugin_require(path.join(spell.dir, spell.main));
-            console.log(`require to follow plugin: ${spell.name}`);
+            this.logger.log(`require to follow plugin: ${spell.name}`);
           }
         }else{
           this.sources[spell.id] = this.plugin_require(path.join(spell.dir, spell.main));
-          console.log(`require to basic plugin: ${spell.name}`);
+          this.logger.log(`require to basic plugin: ${spell.name}`);
         }
 
         loaded_spells.push(spell);
       }catch(err){
-        console.warn(`require failed!: ${err}`);
+        this.logger.log(`require failed!: ${err}`);
       }
     }
 
     this.spells = this.spells.concat(loaded_spells);
 
-    console.log(`loaded plugins!\n  count: ${this.spells.length}`);
-    console.log(this.sources);
+    this.logger.log(`loaded plugins!\n  count: ${this.spells.length}`);
+    this.logger.log(this.sources);
   }
 
   find_source(url){
@@ -115,7 +125,7 @@ module.exports = class ClayCore extends EventEmitter{
       }
     }
 
-    console.log(source.id);
+    this.logger.log(source.id);
     return source;
   }
 
@@ -126,10 +136,10 @@ module.exports = class ClayCore extends EventEmitter{
 
     // source.idがあればsource.execがあることは(プラグイン側に問題がなければ)保証されている
     if(source.exec && source.exec != "NONE"){
-      console.log('v1 plugin exec.');
+      this.logger.log('v1 plugin exec.');
       this.sources[source.id][source.exec].bind({Clay: this.api}, url, save_dir)();
     }else{
-      console.log('v0 plugin exec.');
+      this.logger.log('v0 plugin exec.');
       this.sources[source.id].bind({Clay: this.api}, url, save_dir)();
     }
   }
@@ -138,7 +148,7 @@ module.exports = class ClayCore extends EventEmitter{
     try{
       var main_code = fs.readFileSync(main_path, 'utf-8');
     }catch(err){
-      console.log(err);
+      this.logger.log(err);
       throw err;
     }
 

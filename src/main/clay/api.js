@@ -33,7 +33,11 @@ module.exports = class Clay{
     this._core.emit('status_text_update', text);
   }
 
+  log(...arg){
+    for(var a of arg) this._core.logger.log(a);
+  }
+
   download(url, filename, save_dir, ref){
-    download(url, filename, save_dir, ref);
+    download.bind({Clay: this}, url, filename, save_dir, ref);
   }
 }

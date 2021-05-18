@@ -22,6 +22,11 @@ export default {
         console.log(text);
         store.commit('set_status_text', text);
       });
+
+      window.api.onConsoleLog(function(arg){
+        var content = Buffer.from(arg);
+        console.log(`%ccore:%c ${content.toString()}`, 'color: orange;', '');
+      })
     };
 
     onMounted(setupEventListener);

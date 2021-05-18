@@ -46,9 +46,16 @@ async function createWindow() {
 }
 
 function init_core(){
-  // clay init
-  clay_core.load_plugins_folder('./plugins');
+  setTimeout(function(){
+  // event init
   clay_core.on('status_text_update', (arg) => { win.webContents.send('ipc-status-text-change', arg) });
+  clay_core.on('console_log_update', (arg) => { win.webContents.send('ipc-console-log', arg) });
+
+  // clay plugin init
+  clay_core.load_plugins_folder('./plugins');
+
+
+  }, 1000);
 
   // test
   setTimeout(function(){
