@@ -17,7 +17,7 @@ module.exports = class Clay{
 
       console.log('follow');
 
-      // set_sns_type(follow.target_text);
+      this._core._set_target_sns(follow.target_text);
 
       this._core.follow[spell.id][follow.exec](data);
       is_followed = true;

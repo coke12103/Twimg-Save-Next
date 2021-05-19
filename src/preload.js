@@ -7,6 +7,10 @@ contextBridge.exposeInMainWorld(
       ipcRenderer.on('ipc-status-text-change', (event, arg) => listener(arg));
     },
 
+    onTargetSnsChange: (listener) => {
+      ipcRenderer.on('ipc-target-sns-change', (event, arg) => listener(arg));
+    },
+
     onConsoleLog: (listener) => {
       ipcRenderer.on('ipc-console-log', (event, arg) => listener(arg));
     }

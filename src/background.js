@@ -49,6 +49,7 @@ function init_core(){
   setTimeout(function(){
   // event init
   clay_core.on('status_text_update', (arg) => { win.webContents.send('ipc-status-text-change', arg) });
+  clay_core.on('target_sns_update', (arg) => { win.webContents.send('ipc-target-sns-change', arg) });
   clay_core.on('console_log_update', (arg) => { win.webContents.send('ipc-console-log', arg) });
 
   // clay plugin init

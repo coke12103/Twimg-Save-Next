@@ -107,7 +107,7 @@ module.exports = class ClayCore extends EventEmitter{
 
         var data = spell.type.source_addition;
 
-        // set_sns_type(data.target_text);
+        this._set_target_sns(data.target_text);
 
         source.id = spell.id;
         source.exec = data.exec;
@@ -116,7 +116,7 @@ module.exports = class ClayCore extends EventEmitter{
       }else{
         if(!(spell.search_regexp && spell.search_regexp.test(url))) continue;
 
-        // set_sns_type(spell.type);
+        this._set_target_sns(spell.type);
 
         source.id = spell.id;
         source.exec = 'NONE';
@@ -164,5 +164,9 @@ module.exports = class ClayCore extends EventEmitter{
     _module._compile(main_code, filename);
 
     return _module.exports;
+  }
+
+  _set_target_sns(target){
+    this.emit('target_sns_update', target);
   }
 }
