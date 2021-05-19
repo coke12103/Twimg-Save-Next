@@ -75,14 +75,14 @@ module.exports = class ClayCore extends EventEmitter{
       try{
         if(spell.spell_ver){
           if(spell.type.source_addition){
-            this.sources[spell.id] = this.plugin_require(path.join(spell.dir, spell.main));
+            this.sources[spell.id] = this._plugin_require(path.join(spell.dir, spell.main));
             this.logger.log(`require to v1 plugin: ${spell.name}`);
           }else if(spell.type.follow){
-            this.follow[spell.id] = this.plugin_require(path.join(spell.dir, spell.main));
+            this.follow[spell.id] = this._plugin_require(path.join(spell.dir, spell.main));
             this.logger.log(`require to follow plugin: ${spell.name}`);
           }
         }else{
-          this.sources[spell.id] = this.plugin_require(path.join(spell.dir, spell.main));
+          this.sources[spell.id] = this._plugin_require(path.join(spell.dir, spell.main));
           this.logger.log(`require to basic plugin: ${spell.name}`);
         }
 
@@ -144,7 +144,7 @@ module.exports = class ClayCore extends EventEmitter{
     }
   }
 
-  plugin_require(main_path, filename = ''){
+  _plugin_require(main_path, filename = ''){
     try{
       var main_code = fs.readFileSync(main_path, 'utf-8');
     }catch(err){
