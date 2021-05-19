@@ -15,7 +15,7 @@
     width: 90%;
     align-items: center;
 
-    *{
+    > *{
       padding-top: 0px;
       padding-bottom: 0px;
       padding-left: 8px;
