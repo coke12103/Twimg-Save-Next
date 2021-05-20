@@ -1,0 +1,10 @@
+{
+  "values": [
+    {
+      "id": "categorys_path",
+      "text": "カテゴリーファイルの場所",
+      "default_value": "./categorys.json",
+      "type": "String"
+    }
+  ]
+}

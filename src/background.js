@@ -8,15 +8,19 @@ import path from 'path';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const ClayCore = require('./main/clay/core.js');
+const SettingsManager = require('./main/settings/index.js');
 
 let win;
+
+const clay_core = new ClayCore();
+const settings = new SettingsManager();
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
-const clay_core = new ClayCore();
+
 
 async function createWindow() {
   // Create the browser window.
@@ -46,6 +50,8 @@ async function createWindow() {
 }
 
 function init_core(){
+  settings.init();
+
   setTimeout(function(){
   // event init
   clay_core.on('status_text_update', (arg) => { win.webContents.send('ipc-status-text-change', arg) });
@@ -55,12 +61,15 @@ function init_core(){
   // clay plugin init
   clay_core.load_plugins_folder('./plugins');
 
-
   }, 1000);
 
   // test
   setTimeout(function(){
     clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+
+    clay_core.logger.log(settings.get('categorys_path'));
+
+    settings.set('categorys_path', 'test');
   }, 2000);
 
 }
