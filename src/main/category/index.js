@@ -54,4 +54,12 @@ module.exports = class CategoryManager extends EventEmitter{
   all(){
     return this.values.categorys;
   }
+
+  get(id){
+    var result = this.values.categorys.find(el => el.id === id);
+
+    if(typeof(result) === 'undefined') throw "指定された値がありません";
+
+    return result;
+  }
 }

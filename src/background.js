@@ -76,6 +76,8 @@ function init_core(){
     clay_core.logger.log(settings.get('categorys_path'));
 
     clay_core.logger.log(categorys.all());
+
+    clay_core.logger.log(categorys.get(0));
   }, 2000);
 
 }
