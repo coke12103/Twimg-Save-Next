@@ -9,18 +9,18 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const ClayCore = require('./main/clay/core.js');
 const SettingsManager = require('./main/settings/index.js');
+const CategoryManager = require('./main/category/index.js');
 
 let win;
 
 const clay_core = new ClayCore();
 const settings = new SettingsManager();
+const categorys = new CategoryManager();
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
-
-
 
 async function createWindow() {
   // Create the browser window.
@@ -50,7 +50,13 @@ async function createWindow() {
 }
 
 function init_core(){
-  settings.init();
+  try{
+    settings.init();
+    categorys.init(settings.get('categorys_path'));
+  }catch(err){
+    console.log(err);
+    process.exit(1);
+  }
 
   setTimeout(function(){
   // event init
@@ -69,7 +75,7 @@ function init_core(){
 
     clay_core.logger.log(settings.get('categorys_path'));
 
-    settings.set('categorys_path', 'test');
+    clay_core.logger.log(categorys.all());
   }, 2000);
 
 }
