@@ -71,17 +71,24 @@ function init_core(){
 
   // test
   setTimeout(function(){
-    clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+    try{
+      clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
 
-    clay_core.logger.log(settings.get('categorys_path'));
+      clay_core.logger.log(settings.get('categorys_path'));
 
-    clay_core.logger.log(categorys.all());
+      var cat = categorys.all();
 
-    clay_core.logger.log(categorys.get(0));
+      clay_core.logger.log(cat);
 
-    clay_core.logger.log(categorys.add('test', './'));
+      clay_core.logger.log(categorys.get(cat[0].id));
 
-    clay_core.logger.log(categorys.all());
+      clay_core.logger.log(categorys.add('test', './'));
+
+      clay_core.logger.log(categorys.all());
+    }catch(err){
+      clay_core.logger.log(err);
+    }
+
   }, 2000);
 
 }

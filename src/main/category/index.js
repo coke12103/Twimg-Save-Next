@@ -5,7 +5,7 @@ const uuid = require('uuid');
 const categorys_template = {
   categorys: [
     {
-      id: 0,
+      id: uuid.v4().split('-').join(''),
       name: 'デフォルト',
       save_dir: './'
     }
@@ -45,7 +45,21 @@ module.exports = class CategoryManager extends EventEmitter{
     try{
       var file = JSON.parse(fs.readFileSync(this.path, 'utf8'));
 
-      this.values = file;
+      // 旧Twimg SaveのIDが数字なのに対してNextはUUIDから生成した文字列なので数字のIDがあるならIDを再生成する
+      if(file.categorys.some((el) => typeof(el.id) === 'number')){
+        var result = { categorys: [] };
+
+        for(var cat of file.categorys){
+          if(typeof(cat.id) === 'number') cat.id = uuid.v4().split('-').join('');
+
+          result.categorys.push(cat);
+        }
+
+        this.values = result;
+        this.sync();
+      }else{
+        this.values = file;
+      }
     }catch(err){
       console.log(err);
       throw err;
@@ -91,7 +105,8 @@ module.exports = class CategoryManager extends EventEmitter{
   sync(){
     try{
       fs.writeFileSync(this.path, JSON.stringify(this.values, null, ' '));
-      this.load_categorys();
+      // 要らない説ある
+      //this.load_categorys();
     }catch(err){
       console.log(err);
       throw err;
