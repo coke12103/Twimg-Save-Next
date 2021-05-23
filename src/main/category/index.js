@@ -1,5 +1,6 @@
 const fs = require('fs');
 const EventEmitter = require('events');
+const uuid = require('uuid');
 
 const categorys_template = {
   categorys: [
@@ -61,5 +62,39 @@ module.exports = class CategoryManager extends EventEmitter{
     if(typeof(result) === 'undefined') throw "指定された値がありません";
 
     return result;
+  }
+
+  add(name, save_dir){
+    if(!fs.existsSync(save_dir)) throw '指定されたディレクトリがありません';
+
+    var id = uuid.v4().split('-').join('');
+
+    var cat = {
+      id: id,
+      name: name,
+      save_dir: save_dir
+    };
+
+    this.values.categorys.push(cat);
+
+    try{
+      this.sync();
+      this.emit('update');
+
+      return id;
+    }catch(err){
+      console.log(err);
+      throw err;
+    }
+  }
+
+  sync(){
+    try{
+      fs.writeFileSync(this.path, JSON.stringify(this.values, null, ' '));
+      this.load_categorys();
+    }catch(err){
+      console.log(err);
+      throw err;
+    }
   }
 }

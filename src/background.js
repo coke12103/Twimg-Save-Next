@@ -78,6 +78,10 @@ function init_core(){
     clay_core.logger.log(categorys.all());
 
     clay_core.logger.log(categorys.get(0));
+
+    clay_core.logger.log(categorys.add('test', './'));
+
+    clay_core.logger.log(categorys.all());
   }, 2000);
 
 }
