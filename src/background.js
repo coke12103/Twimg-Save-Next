@@ -85,6 +85,11 @@ function init_core(){
       clay_core.logger.log(categorys.add('test', './'));
 
       clay_core.logger.log(categorys.all());
+
+      clay_core.logger.log(categorys.edit(cat[0].id, 'edit_test', cat[0].save_dir));
+
+      clay_core.logger.log(categorys.all());
+
     }catch(err){
       clay_core.logger.log(err);
     }
