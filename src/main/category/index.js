@@ -104,7 +104,7 @@ module.exports = class CategoryManager extends EventEmitter{
 
   edit(id, name, save_dir){
     if(!fs.existsSync(save_dir)) throw '指定されたディレクトリがありません';
-    if(typeof(this.values.categorys.find(el => el.id === id)) === 'undefined') throw "指定された値がありません";
+    if(!this.values.categorys.some(el => el.id === id)) throw "指定された値がありません";
 
     var result = { categorys: [] };
 
@@ -118,6 +118,24 @@ module.exports = class CategoryManager extends EventEmitter{
     }
 
     this.values = result;
+
+    try{
+      this.sync();
+      this.emit('update');
+
+      return id;
+    }catch(err){
+      console.log(err);
+      throw err;
+    }
+  }
+
+  del(id){
+    if(!this.values.categorys.some(el => el.id === id)) throw "指定された値がありません";
+
+    var result = this.values.categorys.filter(el => el.id !== id);
+
+    this.values.categorys = result;
 
     try{
       this.sync();

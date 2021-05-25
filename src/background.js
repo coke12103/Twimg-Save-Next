@@ -90,6 +90,9 @@ function init_core(){
 
       clay_core.logger.log(categorys.all());
 
+      clay_core.logger.log(categorys.del('remove_this'));
+
+      clay_core.logger.log(categorys.all());
     }catch(err){
       clay_core.logger.log(err);
     }
