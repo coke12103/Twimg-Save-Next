@@ -3,6 +3,7 @@
   <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   <StatusCard></StatusCard>
   <TargetSnsCard></TargetSnsCard>
+  <UrlInputCard></UrlInputCard>
 </template>
 
 <script>
@@ -11,12 +12,14 @@ import store from './store';
 
 import StatusCard from './components/StatusCard.vue';
 import TargetSnsCard from './components/TargetSnsCard.vue';
+import UrlInputCard from './components/UrlInputCard.vue';
 
 export default {
   name: 'App',
   components: {
     StatusCard,
-    TargetSnsCard
+    TargetSnsCard,
+    UrlInputCard
   },
 
   setup(){
@@ -44,12 +47,15 @@ export default {
 
 <style lang="less">
 #app {
+  display: flex;
+  flex-direction: column;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
   margin-top: 10px;
+  align-items: center;
 
   > *{
     margin-bottom: 10px;

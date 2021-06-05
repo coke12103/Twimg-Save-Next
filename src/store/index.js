@@ -3,7 +3,8 @@ import { createStore } from 'vuex'
 export default createStore({
   state: {
     status_text: '起動していません',
-    target_sns_text: ''
+    target_sns_text: '',
+    current_url: ''
   },
   mutations: {
     set_status_text(state, text){
@@ -12,6 +13,10 @@ export default createStore({
 
     set_target_sns(state, text){
       state.target_sns_text = text;
+    },
+
+    set_current_url(state, text){
+      state.current_url = text;
     }
   },
   actions: {

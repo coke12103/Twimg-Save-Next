@@ -13,6 +13,10 @@ contextBridge.exposeInMainWorld(
 
     onConsoleLog: (listener) => {
       ipcRenderer.on('ipc-console-log', (event, arg) => listener(arg));
+    },
+
+    download: (url) => {
+      ipcRenderer.send('ipc-download', url);
     }
   }
 );

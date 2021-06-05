@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import path from 'path';
@@ -64,6 +64,10 @@ function init_core(){
   clay_core.on('target_sns_update', (arg) => { win.webContents.send('ipc-target-sns-change', arg) });
   clay_core.on('console_log_update', (arg) => { win.webContents.send('ipc-console-log', arg) });
 
+    ipcMain.on('ipc-download', (event, arg) => {
+      clay_core.logger.log(arg);
+    })
+
   // clay plugin init
   clay_core.load_plugins_folder('./plugins');
 
@@ -74,25 +78,25 @@ function init_core(){
     try{
       clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
 
-      clay_core.logger.log(settings.get('categorys_path'));
+      // clay_core.logger.log(settings.get('categorys_path'));
 
-      var cat = categorys.all();
+      // var cat = categorys.all();
 
-      clay_core.logger.log(cat);
+      // clay_core.logger.log(cat);
 
-      clay_core.logger.log(categorys.get(cat[0].id));
+      // clay_core.logger.log(categorys.get(cat[0].id));
 
-      clay_core.logger.log(categorys.add('test', './'));
+      // clay_core.logger.log(categorys.add('test', './'));
 
-      clay_core.logger.log(categorys.all());
+      // clay_core.logger.log(categorys.all());
 
-      clay_core.logger.log(categorys.edit(cat[0].id, 'edit_test', cat[0].save_dir));
+      // clay_core.logger.log(categorys.edit(cat[0].id, 'edit_test', cat[0].save_dir));
 
-      clay_core.logger.log(categorys.all());
+      // clay_core.logger.log(categorys.all());
 
-      clay_core.logger.log(categorys.del('remove_this'));
+      // clay_core.logger.log(categorys.del('remove_this'));
 
-      clay_core.logger.log(categorys.all());
+      // clay_core.logger.log(categorys.all());
     }catch(err){
       clay_core.logger.log(err);
     }
