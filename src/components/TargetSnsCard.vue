@@ -1,6 +1,6 @@
 <template>
   <ui-card class="target-sns-card">
-    ターゲットSNS: <span class="target-sns-text">{{ $store.state.target_sns_text }}</span>
+    <span>ターゲットSNS: <span class="target-sns-text">{{ $store.state.target_sns_text }}</span></span>
   </ui-card>
 </template>
 

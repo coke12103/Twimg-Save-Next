@@ -4,22 +4,19 @@
   </div>
 </template>
 
-<style lang="less" scoped>
+<style lang="less">
   .ui-card{
     display: flex;
     overflow: hidden;
     position: relative;
     background: #fff;
     box-shadow: 0 3px 8px rgba(0,0,0,.2);
-    padding: 12px;
-    width: 90%;
-    align-items: center;
+    box-sizing: border-box;
+    width: calc(100% - 8px);
+    align-items: stretch;
 
     > *{
-      padding-top: 0px;
-      padding-bottom: 0px;
-      padding-left: 8px;
-      padding-right: 8px;
+      margin: 12px;
     }
   }
 </style>

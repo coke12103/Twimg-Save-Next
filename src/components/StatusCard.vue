@@ -1,6 +1,6 @@
 <template>
   <ui-card class="status-card">
-    Status: <span class="status-text">{{ $store.state.status_text }}</span>
+    <span>Status: <span class="status-text">{{ $store.state.status_text }}</span></span>
   </ui-card>
 </template>
 
