@@ -4,6 +4,7 @@
   <StatusCard></StatusCard>
   <TargetSnsCard></TargetSnsCard>
   <UrlInputCard></UrlInputCard>
+  <CategoryCard></CategoryCard>
 </template>
 
 <script>
@@ -13,13 +14,15 @@ import store from './store';
 import StatusCard from './components/StatusCard.vue';
 import TargetSnsCard from './components/TargetSnsCard.vue';
 import UrlInputCard from './components/UrlInputCard.vue';
+import CategoryCard from './components/CategoryCard.vue';
 
 export default {
   name: 'App',
   components: {
     StatusCard,
     TargetSnsCard,
-    UrlInputCard
+    UrlInputCard,
+    CategoryCard
   },
 
   setup(){
@@ -36,7 +39,7 @@ export default {
       window.api.onConsoleLog(function(arg){
         var content = Buffer.from(arg);
         console.log(`%ccore:%c ${content.toString()}`, 'color: orange;', '');
-      })
+      });
     };
 
     onMounted(setupEventListener);

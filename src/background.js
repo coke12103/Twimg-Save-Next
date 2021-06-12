@@ -50,6 +50,12 @@ async function createWindow() {
 }
 
 function init_core(){
+  // 起動順序
+  // 0. ClayCoreのinit(定義時に完了)
+  // 1. 設定の読み込み
+  // 2. カテゴリのロード
+  // 3. 各種イベンドの登録
+  // 4. レンダラー側のロード完了をトリガーにプラグインの読み込み(プラグインデバッグ用にレンダラー側にログを吐かせるため)
   try{
     settings.init();
     categorys.init(settings.get('categorys_path'));
@@ -58,51 +64,56 @@ function init_core(){
     process.exit(1);
   }
 
-  setTimeout(function(){
   // event init
   clay_core.on('status_text_update', (arg) => { win.webContents.send('ipc-status-text-change', arg) });
   clay_core.on('target_sns_update', (arg) => { win.webContents.send('ipc-target-sns-change', arg) });
   clay_core.on('console_log_update', (arg) => { win.webContents.send('ipc-console-log', arg) });
 
-    ipcMain.on('ipc-download', (event, arg) => {
-      clay_core.logger.log(arg);
-    })
+  categorys.on('update', () => { win.webContents.send('ipc-update-categorys', categorys.all()) });
 
-  // clay plugin init
-  clay_core.load_plugins_folder('./plugins');
+  ipcMain.on('ipc-download', (event, data) => {
+    clay_core.logger.log(`url: ${data.url}`);
+    clay_core.logger.log(`category: ${data.category}`)
+  });
 
-  }, 1000);
+  ipcMain.on('ipc-request-categorys', () => {
+    win.webContents.send('ipc-update-categorys', categorys.all());
+  });
 
-  // test
-  setTimeout(function(){
-    try{
-      clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+  win.webContents.on('did-finish-load', ()=>{
+    // clay plugin init
+    clay_core.load_plugins_folder('./plugins');
 
-      // clay_core.logger.log(settings.get('categorys_path'));
+    // test
+    setTimeout(function(){
+      try{
+        clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
 
-      // var cat = categorys.all();
+        // clay_core.logger.log(settings.get('categorys_path'));
 
-      // clay_core.logger.log(cat);
+        // var cat = categorys.all();
 
-      // clay_core.logger.log(categorys.get(cat[0].id));
+        // clay_core.logger.log(cat);
 
-      // clay_core.logger.log(categorys.add('test', './'));
+        // clay_core.logger.log(categorys.get(cat[0].id));
 
-      // clay_core.logger.log(categorys.all());
+        // clay_core.logger.log(categorys.add('test', './'));
 
-      // clay_core.logger.log(categorys.edit(cat[0].id, 'edit_test', cat[0].save_dir));
+        // clay_core.logger.log(categorys.all());
 
-      // clay_core.logger.log(categorys.all());
+        // clay_core.logger.log(categorys.edit(cat[0].id, 'edit_test', cat[0].save_dir));
 
-      // clay_core.logger.log(categorys.del('remove_this'));
+        // clay_core.logger.log(categorys.all());
 
-      // clay_core.logger.log(categorys.all());
-    }catch(err){
-      clay_core.logger.log(err);
-    }
+        // clay_core.logger.log(categorys.del('remove_this'));
 
-  }, 2000);
+        // clay_core.logger.log(categorys.all());
+      }catch(err){
+        clay_core.logger.log(err);
+      }
 
+    }, 1000);
+  });
 }
 
 // Quit when all windows are closed.

@@ -15,8 +15,17 @@ contextBridge.exposeInMainWorld(
       ipcRenderer.on('ipc-console-log', (event, arg) => listener(arg));
     },
 
-    download: (url) => {
-      ipcRenderer.send('ipc-download', url);
-    }
+    onUpdateCategorys: (listener) => {
+      ipcRenderer.on('ipc-update-categorys', (event, arg) => listener(arg));
+    },
+
+    // methods
+    download: (data) => {
+      ipcRenderer.send('ipc-download', data);
+    },
+
+    requestCategorys: () => {
+      ipcRenderer.send('ipc-request-categorys');
+    },
   }
 );

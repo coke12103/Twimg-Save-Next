@@ -45,8 +45,10 @@ export default{
 
   methods: {
     download(){
-      console.log(this.urlLocal)
-      window.api.download(this.$store.state.current_url);
+      window.api.download({
+        url: this.$store.state.current_url,
+        category: this.$store.state.current_category
+      });
     },
 
     updateUrl(){
