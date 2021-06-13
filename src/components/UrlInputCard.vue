@@ -1,11 +1,11 @@
 <template>
   <ui-card class="url-input-card">
     <div class="input-area">
-      <ui-input v-model:value="urlLocal" v-model:placeholder="placeholder" @change="updateUrl">URL</ui-input>
+      <ui-input v-model:value="urlLocal" v-model:placeholder="placeholder" @change="updateUrl" @click.right.prevent="pasteUrl">URL</ui-input>
     </div>
     <div class="border"></div>
     <div class="button-area">
-      <ui-button v-model:value="download_button_text" @click="download"></ui-button>
+      <ui-button v-model:value="download_button_text" @click="download" @click.right.prevent="pasteUrl"></ui-button>
     </div>
   </ui-card>
 </template>
@@ -51,9 +51,14 @@ export default{
       });
     },
 
+    async pasteUrl(){
+      const url = await navigator.clipboard.readText();
+      this.urlLocal = url;
+    },
+
     updateUrl(){
       this.$store.commit('set_current_url', this.urlLocal);
-    }
+    },
   }
 }
 </script>
