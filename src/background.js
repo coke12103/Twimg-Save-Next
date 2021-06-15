@@ -4,6 +4,7 @@ import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import path from 'path';
+import fs from 'fs';
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -23,10 +24,31 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 async function createWindow() {
+  let bounds = {};
+  let bounds_file;
+
+  const bounds_template = [
+    { id: 'width', default_value: 800 },
+    { id: 'height', default_value: 600 },
+    { id: 'x', default_value: 0 },
+    { id: 'y', default_value: 0 }
+  ];
+
+  try{
+    bounds_file = JSON.parse(fs.readFileSync('./bounds.json', 'utf-8'));
+  }catch(e){
+    bounds_file = {};
+    console.log(e);
+  }
+
+  for(var val of bounds_template) bounds[val.id] = val.id in bounds_file ? bounds_file[val.id] : val.default_value;
+
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -36,7 +58,11 @@ async function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     }
-  })
+  });
+
+  win.on('close', function(){
+    fs.writeFileSync('./bounds.json', JSON.stringify(win.getBounds(), null, ' '));
+  });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
