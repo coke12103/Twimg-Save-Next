@@ -98,6 +98,61 @@ module.exports = class ClayCore extends EventEmitter{
     this.logger.log(this.sources);
   }
 
+  find_source_plugin(url){
+    var result = "";
+
+    for(var spell of this.spells){
+      if(spell.spell_ver){
+        if(!spell.type.source_addition || !spell.type.source_addition.regexp.test(url)) continue;
+
+        result = spell.id;
+
+        break;
+      }else{
+        if(!(spell.search_regexp && spell.search_regexp.test(url))) continue;
+
+        result = spell.id;
+
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  _find_exec(id){
+    var source = {};
+
+    for(var spell of this.spells){
+      if(spell.id !== id) continue;
+
+      source.id = spell.id;
+
+      if(spell.spell_ver){
+        source.exec = spell.type.source_addition.exec;
+      }else{
+        source.exec = 'NONE';
+      }
+
+      break;
+    }
+
+    this.logger.log(source.id);
+    return source;
+  }
+
+  exec(plugin_id, url, save_dir){
+    var exec = this._find_exec(plugin_id);
+
+    if(exec && exec != "NONE"){
+      this.logger.log('v1 plugin exec.');
+      this.sources[plugin_id][exec].bind({Clay: this.api}, url, save_dir)();
+    }else{
+      this.logger.log('v0 plugin exec.');
+      this.sources[plugin_id].bind({Clay: this.api}, url, save_dir)();
+    }
+  }
+
   find_source(url){
     var source = {};
 
@@ -142,6 +197,16 @@ module.exports = class ClayCore extends EventEmitter{
       this.logger.log('v0 plugin exec.');
       this.sources[source.id].bind({Clay: this.api}, url, save_dir)();
     }
+  }
+
+  reset(){
+    this.sources = {};
+    this.follow = {};
+    this.spells = [];
+  }
+
+  list_plugins(){
+    return this.spells;
   }
 
   _plugin_require(main_path, filename = ''){
