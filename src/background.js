@@ -9,12 +9,16 @@ import fs from 'fs';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const ClayCore = require('./main/clay/core.js');
+const Queue = require('./main/queue/index.js');
+
 const SettingsManager = require('./main/settings/index.js');
 const CategoryManager = require('./main/category/index.js');
 
 let win;
 
 const clay_core = new ClayCore();
+const queues = new Queue();
+
 const settings = new SettingsManager();
 const categorys = new CategoryManager();
 
@@ -82,6 +86,7 @@ function init_core(){
   // 2. カテゴリのロード
   // 3. 各種イベンドの登録
   // 4. レンダラー側のロード完了をトリガーにプラグインの読み込み(プラグインデバッグ用にレンダラー側にログを吐かせるため)
+  // 5. キューのinit
   try{
     settings.init();
     categorys.init(settings.get('categorys_path'));
@@ -97,6 +102,8 @@ function init_core(){
 
   categorys.on('update', () => { win.webContents.send('ipc-update-categorys', categorys.all()) });
 
+  queues.on('update', (arg) => { clay_core.logger.log(arg) });
+
   ipcMain.on('ipc-download', (event, data) => {
     clay_core.logger.log(`url: ${data.url}`);
     clay_core.logger.log(`category: ${data.category}`)
@@ -106,14 +113,21 @@ function init_core(){
     win.webContents.send('ipc-update-categorys', categorys.all());
   });
 
-  win.webContents.on('did-finish-load', ()=>{
+  win.webContents.once('did-finish-load', ()=>{
     // clay plugin init
+    clay_core.reset();
+
     clay_core.load_plugins_folder('./plugins');
+
+    // queue init
+    queues.init(clay_core);
 
     // test
     setTimeout(function(){
       try{
-        clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+        clay_core.logger.log(queues.list_queue());
+        queues.add('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+        // clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
 
         // clay_core.logger.log(settings.get('categorys_path'));
 
@@ -134,6 +148,7 @@ function init_core(){
         // clay_core.logger.log(categorys.del('remove_this'));
 
         // clay_core.logger.log(categorys.all());
+        // clay_core.logger.log(clay_core.list_plugins());
       }catch(err){
         clay_core.logger.log(err);
       }
