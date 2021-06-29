@@ -28,3 +28,11 @@ pnpm-debug.log*
 # Plugins
 /plugins/*
 !/plugins/twitter/
+
+# Generated files
+/bounds.json
+/categorys.json
+/settings.json
+
+# test
+/test/
