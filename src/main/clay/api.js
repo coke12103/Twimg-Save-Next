@@ -38,6 +38,6 @@ module.exports = class Clay{
   }
 
   download(url, filename, save_dir, ref){
-    download.bind({Clay: this}, url, filename, save_dir, ref);
+    return download.bind({Clay: this}, url, filename, save_dir, ref)();
   }
 }
