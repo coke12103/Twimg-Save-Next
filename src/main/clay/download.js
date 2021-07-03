@@ -17,12 +17,12 @@ module.exports = async function download(url, filename, save_dir, ref){
     var body = await got(opt);
     body = body.body;
   }catch(err){
-    // set_status_text(`Download: ${err.statusCode}`);
+    this.Clay.log(`Download: ${err}`);
     console.log(err);
     throw err;
   }
 
-  console.log('Download: OK');
+  this.Clay.set_status_text('Download: OK');
 
   try{
     fs.writeFileSync(`${save_dir}/${filename}`, body, { encoding: 'binary' });
