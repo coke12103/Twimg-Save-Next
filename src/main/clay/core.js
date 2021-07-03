@@ -96,6 +96,8 @@ module.exports = class ClayCore extends EventEmitter{
 
     this.logger.log(`loaded plugins!\n  count: ${this.spells.length}`);
     this.logger.log(this.sources);
+
+    this.emit('status_text_update', `${this.spells.length}個のプラグインをロード`);
   }
 
   find_source_plugin(url){
@@ -121,35 +123,32 @@ module.exports = class ClayCore extends EventEmitter{
   }
 
   _find_exec(id){
-    var source = {};
+    var source = null;
 
     for(var spell of this.spells){
       if(spell.id !== id) continue;
 
-      source.id = spell.id;
-
       if(spell.spell_ver){
-        source.exec = spell.type.source_addition.exec;
+        source = spell.type.source_addition.exec;
       }else{
-        source.exec = 'NONE';
+        source = 'NONE';
       }
 
       break;
     }
 
-    this.logger.log(source.id);
     return source;
   }
 
-  exec(plugin_id, url, save_dir){
+  exec(plugin_id, url, save_dir, queue_id){
     var exec = this._find_exec(plugin_id);
 
     if(exec && exec != "NONE"){
       this.logger.log('v1 plugin exec.');
-      this.sources[plugin_id][exec].bind({Clay: this.api}, url, save_dir)();
+      return this.sources[plugin_id][exec].bind({Clay: this.api, QueueId: queue_id}, url, save_dir)();
     }else{
       this.logger.log('v0 plugin exec.');
-      this.sources[plugin_id].bind({Clay: this.api}, url, save_dir)();
+      return this.sources[plugin_id].bind({Clay: this.api, QueueId: queue_id}, url, save_dir)();
     }
   }
 

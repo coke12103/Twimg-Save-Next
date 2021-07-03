@@ -9,7 +9,7 @@ import fs from 'fs';
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const ClayCore = require('./main/clay/core.js');
-const Queue = require('./main/queue/index.js');
+const QueueManager = require('./main/queue/index.js');
 
 const SettingsManager = require('./main/settings/index.js');
 const CategoryManager = require('./main/category/index.js');
@@ -17,7 +17,7 @@ const CategoryManager = require('./main/category/index.js');
 let win;
 
 const clay_core = new ClayCore();
-const queues = new Queue();
+const queues = new QueueManager();
 
 const settings = new SettingsManager();
 const categorys = new CategoryManager();
@@ -103,6 +103,7 @@ function init_core(){
   categorys.on('update', () => { win.webContents.send('ipc-update-categorys', categorys.all()) });
 
   queues.on('update', (arg) => { clay_core.logger.log(arg) });
+  queues.on('done', (arg) => { clay_core.logger.log(arg, queues.list_queue()) });
 
   ipcMain.on('ipc-download', (event, data) => {
     clay_core.logger.log(`url: ${data.url}`);
@@ -127,6 +128,10 @@ function init_core(){
       try{
         clay_core.logger.log(queues.list_queue());
         queues.add('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+        queues.add('https://twitter.com/coke12103/status/1410013235730812931', './test/');
+        queues.add('https://twitter.com/coke12103/status/1406347848128503808', './test/');
+        queues.add('https://twitter.com/coke12103/status/1398438979184193539', './test/');
+        clay_core.logger.log(queues.list_queue());
         // clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
 
         // clay_core.logger.log(settings.get('categorys_path'));
