@@ -108,6 +108,15 @@ function init_core(){
   ipcMain.on('ipc-download', (event, data) => {
     clay_core.logger.log(`url: ${data.url}`);
     clay_core.logger.log(`category: ${data.category}`)
+
+    try{
+      let save_dir = categorys.get(data.category).save_dir;
+
+      queues.add(data.url, save_dir);
+    }catch(err){
+      clay_core.logger.log(err);
+      console.log(err);
+    }
   });
 
   ipcMain.on('ipc-request-categorys', () => {
@@ -126,15 +135,12 @@ function init_core(){
     // test
     setTimeout(function(){
       try{
-        clay_core.logger.log(queues.list_queue());
-        queues.add('https://twitter.com/coke12103/status/1391116694198890496', './test/');
-        queues.add('https://twitter.com/coke12103/status/1410013235730812931', './test/');
-        queues.add('https://twitter.com/coke12103/status/1406347848128503808', './test/');
-        queues.add('https://twitter.com/coke12103/status/1398438979184193539', './test/');
-        clay_core.logger.log(queues.list_queue());
-        // clay_core.exec_plugin('https://twitter.com/coke12103/status/1391116694198890496', './test/');
-
-        // clay_core.logger.log(settings.get('categorys_path'));
+        // clay_core.logger.log(queues.list_queue());
+        // queues.add('https://twitter.com/coke12103/status/1391116694198890496', './test/');
+        // queues.add('https://twitter.com/coke12103/status/1410013235730812931', './test/');
+        // queues.add('https://twitter.com/coke12103/status/1406347848128503808', './test/');
+        // queues.add('https://twitter.com/coke12103/status/1398438979184193539', './test/');
+        // clay_core.logger.log(queues.list_queue());
 
         // var cat = categorys.all();
 
