@@ -102,7 +102,7 @@ function init_core(){
 
   categorys.on('update', () => { win.webContents.send('ipc-update-categorys', categorys.all()) });
 
-  queues.on('update', (arg) => { clay_core.logger.log(arg) });
+  queues.on('update', (arg) => { win.webContents.send('ipc-queue-update', arg) });
   queues.on('done', (arg) => { clay_core.logger.log(arg, queues.list_queue()) });
 
   ipcMain.on('ipc-download', (event, data) => {

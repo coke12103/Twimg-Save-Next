@@ -5,6 +5,7 @@
   <TargetSnsCard></TargetSnsCard>
   <UrlInputCard></UrlInputCard>
   <CategoryCard></CategoryCard>
+  <QueueCard></QueueCard>
 </template>
 
 <script>
@@ -15,6 +16,7 @@ import StatusCard from './components/StatusCard.vue';
 import TargetSnsCard from './components/TargetSnsCard.vue';
 import UrlInputCard from './components/UrlInputCard.vue';
 import CategoryCard from './components/CategoryCard.vue';
+import QueueCard from './components/QueueCard.vue';
 
 export default {
   name: 'App',
@@ -22,7 +24,8 @@ export default {
     StatusCard,
     TargetSnsCard,
     UrlInputCard,
-    CategoryCard
+    CategoryCard,
+    QueueCard
   },
 
   setup(){
@@ -35,6 +38,17 @@ export default {
       window.api.onTargetSnsChange(function(text){
         store.commit('set_target_sns', text);
       });
+
+      window.api.onQueueUpdate(function(queue_list){
+        console.log(queue_list);
+
+        let count = 0;
+        for(var cat in queue_list){
+          count += queue_list[cat].length;
+        }
+
+        store.commit('set_queue_count', count);
+      })
 
       window.api.onConsoleLog(function(arg){
         var content = Buffer.from(arg);

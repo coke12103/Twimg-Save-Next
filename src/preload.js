@@ -19,6 +19,10 @@ contextBridge.exposeInMainWorld(
       ipcRenderer.on('ipc-update-categorys', (event, arg) => listener(arg));
     },
 
+    onQueueUpdate: (listener) => {
+      ipcRenderer.on('ipc-queue-update', (event, arg) => listener(arg));
+    },
+
     // methods
     download: (data) => {
       ipcRenderer.send('ipc-download', data);
