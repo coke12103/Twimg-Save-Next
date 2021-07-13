@@ -125,26 +125,38 @@ module.exports = class ClayCore extends EventEmitter{
   _find_exec(id){
     var source = null;
 
-    for(var spell of this.spells){
-      if(spell.id !== id) continue;
+    const plugin = this.spells.find(el => el.id === id);
 
-      if(spell.spell_ver){
-        source = spell.type.source_addition.exec;
-      }else{
-        source = 'NONE';
-      }
-
-      break;
+    if(plugin.spell_ver){
+      source = plugin.type.source_addition.exec;
+    }else{
+      source = 'NONE';
     }
 
     return source;
   }
 
+  _find_target_text(id){
+    var text = null;
+
+    const plugin = this.spells.find(el => el.id === id);
+
+    if(plugin.spell_ver){
+      text = plugin.type.source_addition.target_text;
+    }else{
+      text = plugin.type;
+    }
+
+    return text;
+  }
+
   exec(plugin_id, url, save_dir, queue_id){
     var exec = this._find_exec(plugin_id);
+    this._set_target_sns(this._find_target_text(plugin_id));
 
     if(exec && exec != "NONE"){
       this.logger.log('v1 plugin exec.');
+
       return this.sources[plugin_id][exec].bind({Clay: this.api, QueueId: queue_id}, url, save_dir)();
     }else{
       this.logger.log('v0 plugin exec.');
