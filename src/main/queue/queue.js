@@ -42,6 +42,7 @@ module.exports = class Queue extends EventEmitter{
 
     this.queue.shift();
     this.emit('done', queue.queue_id);
+    this.emit('update');
     this.is_downloading = false;
     this._download();
   }
