@@ -54,6 +54,8 @@ export default{
     async pasteUrl(){
       const url = await navigator.clipboard.readText();
       this.urlLocal = url;
+
+      this.updateUrl();
     },
 
     updateUrl(){
