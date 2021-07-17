@@ -49,6 +49,9 @@ export default{
         url: this.$store.state.current_url,
         category: this.$store.state.current_category
       });
+
+      this.urlLocal = "";
+      this.updateUrl();
     },
 
     async pasteUrl(){
