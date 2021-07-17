@@ -34,7 +34,7 @@ module.exports = class Clay{
   }
 
   log(...arg){
-    for(var a of arg) this._core.logger.log(a);
+    for(var a of arg) this._core.logger.log(`plugin: ${a}`);
   }
 
   download(url, filename, save_dir, ref){
