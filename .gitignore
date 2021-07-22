@@ -28,6 +28,7 @@ pnpm-debug.log*
 # Plugins
 /plugins/*
 !/plugins/twitter/
+!/plugins/pixiv/
 
 # Generated files
 /bounds.json
