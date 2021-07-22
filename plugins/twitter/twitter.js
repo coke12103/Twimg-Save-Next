@@ -22,15 +22,15 @@ const twitter = async function(url, save_dir){
     body = body.body;
 
     Clay.set_status_text("Get page: OK");
+
+    var dom = new JSDOM(body);
+    var parse_body = dom.window.document;
   }catch(e){
     Clay.log(e);
 //    notification.basic_error("投稿を取得することができませんでした!");
     Clay.set_status_text("download error");
-    return;
+    throw e;
   }
-
-  var dom = new JSDOM(body);
-  var parse_body = dom.window.document;
 
   var user_id_and_status_id = url.replace("https://twitter.com/", "");
 
@@ -57,14 +57,14 @@ const twitter = async function(url, save_dir){
     if(media_url.match(/profile_images/)){
       Clay.set_status_text("No Image File");
 //      notification.no_file_error();
-      return;
+      throw 'No Image File';
     }
 
     // videoとimageは共存しない
     if(media_url.match(/tweet_video_thumb|ext_tw_video_thumb/)){
       Clay.set_status_text("Unsupported media");
 //      notification.unsupported_notification("この添付メディアは現在は対応していません");
-      return
+      throw 'Unsupported media';
     }
 
     var extension = media_url.match(/(\/media\/)(.+)(\.[a-zA-Z0-9]+)(:[a-zA-Z]+)$/)[3];
@@ -76,7 +76,7 @@ const twitter = async function(url, save_dir){
       Clay.log(e);
 //      notification.basic_error("ファイルの書き込みに失敗しました!\nHint: 保存先に指定されたフォルダが消えていませんか？消えていないならそのフォルダに書き込み権限はありますか？");
       Clay.set_status_text("download error");
-      return;
+      throw e;
     }
 
     image_count++;
@@ -86,7 +86,7 @@ const twitter = async function(url, save_dir){
   if(image_count < 1){
 //    notification.basic_error("画像がみつかりませんでした!\nHint: Twimg Saveは鍵アカウントの投稿には対応していません。\n凍結されたアカウントの投稿も同様に対応していません。");
     Clay.set_status_text("download error");
-    return;
+    throw 'download error';
   }
 
   Clay.set_status_text('Download done.');
