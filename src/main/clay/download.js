@@ -30,4 +30,6 @@ module.exports = async function download(url, filename, save_dir, ref){
     console.log(err);
     throw err;
   }
+
+  return true;
 }
