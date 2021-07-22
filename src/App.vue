@@ -1,11 +1,10 @@
 <template>
-  <!-- <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   <StatusCard></StatusCard>
   <TargetSnsCard></TargetSnsCard>
   <UrlInputCard></UrlInputCard>
   <CategoryCard></CategoryCard>
   <QueueCard></QueueCard>
+  <QuickSettingsCard></QuickSettingsCard>
 </template>
 
 <script>
@@ -17,6 +16,7 @@ import TargetSnsCard from './components/TargetSnsCard.vue';
 import UrlInputCard from './components/UrlInputCard.vue';
 import CategoryCard from './components/CategoryCard.vue';
 import QueueCard from './components/QueueCard.vue';
+import QuickSettingsCard from './components/QuickSettingsCard';
 
 export default {
   name: 'App',
@@ -25,7 +25,8 @@ export default {
     TargetSnsCard,
     UrlInputCard,
     CategoryCard,
-    QueueCard
+    QueueCard,
+    QuickSettingsCard
   },
 
   setup(){
