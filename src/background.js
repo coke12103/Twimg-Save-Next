@@ -13,6 +13,7 @@ const QueueManager = require('./main/queue/index.js');
 
 const SettingsManager = require('./main/settings/index.js');
 const CategoryManager = require('./main/category/index.js');
+const Clipboard = require('./main/clipboard.js');
 
 let win;
 
@@ -21,6 +22,7 @@ const queues = new QueueManager();
 
 const settings = new SettingsManager();
 const categorys = new CategoryManager();
+const clipboard = new Clipboard();
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -105,6 +107,8 @@ function init_core(){
   queues.on('update', (arg) => { win.webContents.send('ipc-queue-update', arg) });
   queues.on('done', (arg) => { clay_core.logger.log(arg, queues.list_queue()) });
 
+  clipboard.on('update', (arg) => { win.webContents.send('ipc-clipboard-change', arg) });
+
   ipcMain.on('ipc-download', (event, data) => {
     clay_core.logger.log(`url: ${data.url}`);
     clay_core.logger.log(`category: ${data.category}`)
@@ -122,6 +126,11 @@ function init_core(){
   ipcMain.on('ipc-request-categorys', () => {
     win.webContents.send('ipc-update-categorys', categorys.all());
   });
+
+  ipcMain.on('ipc-clipboard-check-change', (event, value) => {
+    if(value) clipboard.enable();
+    else clipboard.disable();
+  })
 
   win.webContents.once('did-finish-load', ()=>{
     // clay plugin init

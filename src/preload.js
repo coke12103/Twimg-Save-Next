@@ -2,7 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld(
   'api', {
-    // EventListener
+    // EventListener(main => renderer)
     onStatusTextChange: (listener) => {
       ipcRenderer.on('ipc-status-text-change', (event, arg) => listener(arg));
     },
@@ -21,6 +21,15 @@ contextBridge.exposeInMainWorld(
 
     onQueueUpdate: (listener) => {
       ipcRenderer.on('ipc-queue-update', (event, arg) => listener(arg));
+    },
+
+    onClipboardChange: (listener) => {
+      ipcRenderer.on('ipc-clipboard-change', (event, arg) => listener(arg));
+    },
+
+    // EventListener(renderer => main)
+    emitClipboardCheckChange: (value) => {
+      ipcRenderer.send('ipc-clipboard-check-change', value);
     },
 
     // methods

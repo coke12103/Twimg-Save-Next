@@ -81,7 +81,6 @@ export default{
 
   setup(props, { emit }){
     const toggleValue = () => {
-      console.log(props.value);
       emit('update:value', !props.value);
     };
 

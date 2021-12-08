@@ -1,7 +1,7 @@
 <template>
   <ui-card class="quick-settings-card">
     <div class="qs-container">
-      <ui-switch v-model:value="isCheckClipboardLocal">クリップボード監視</ui-switch>
+      <ui-switch v-model:value="isCheckClipboardLocal" @click="on_clipboard_check_change">クリップボード監視</ui-switch>
     </div>
     <div class="border"></div>
     <div class="button-area">
@@ -49,6 +49,10 @@ export default{
   methods: {
     open_settings(){
     },
+
+    on_clipboard_check_change(){
+      window.api.emitClipboardCheckChange(this.isCheckClipboardLocal);
+    }
   },
 
   setup(){
@@ -56,6 +60,9 @@ export default{
     const is_auto_download = ref(false);
 
     const setupEvents = function(){
+      window.api.onClipboardChange(function(text){
+        console.log(text);
+      });
     };
 
     onMounted(setupEvents);
