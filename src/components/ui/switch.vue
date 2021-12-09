@@ -21,6 +21,7 @@
       display: block;
       user-select: none;
       font-size: 6px;
+      padding: 0 2px;
       padding-bottom: 4px;
       color: rgba(41, 47, 51, 0.7);
     }

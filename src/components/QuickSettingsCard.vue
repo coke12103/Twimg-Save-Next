@@ -1,7 +1,8 @@
 <template>
   <ui-card class="quick-settings-card">
     <div class="qs-container">
-      <ui-switch v-model:value="isCheckClipboardLocal" @click="on_clipboard_check_change">クリップボード監視</ui-switch>
+      <ui-switch v-model:value="is_check_clipboard" @click="on_clipboard_check_change">クリップボード監視</ui-switch>
+      <ui-switch v-model:value="is_auto_download">そのままダウンロード</ui-switch>
     </div>
     <div class="border"></div>
     <div class="button-area">
@@ -18,6 +19,10 @@
     .qs-container,
     .button-area{
       display: flex;
+    }
+
+    .qs-container > *{
+      margin: 0 2px;
     }
 
     .button-area{
@@ -39,8 +44,6 @@ import store from '../store';
 export default{
   data(){
     return {
-      isCheckClipboardLocal: this.is_check_clipboard,
-      isAutoDownloadLocal: this.is_auto_download,
       settings_text: '設定'
     }
   },
@@ -50,7 +53,7 @@ export default{
     },
 
     on_clipboard_check_change(){
-      window.api.emitClipboardCheckChange(this.isCheckClipboardLocal);
+      window.api.emitClipboardCheckChange(this.is_check_clipboard);
     }
   },
 
@@ -58,11 +61,14 @@ export default{
     const is_check_clipboard = ref(false);
     const is_auto_download = ref(false);
 
-    const setupEvents = function(){
-      window.api.onClipboardChange(function(text){
-        if(this.isAutoDownloadLocal){
+    const setupEvents = () => {
+      window.api.onClipboardChange((text) => {
+        if(is_auto_download.value){
           // download
-          console.log(text);
+          window.api.download({
+            url: text,
+            category: store.state.current_category
+          });
         }else{
           store.commit('set_current_url', text);
         }
