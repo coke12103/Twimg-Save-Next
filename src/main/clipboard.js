@@ -19,6 +19,7 @@ module.exports = class Clipboard extends EventEmitter{
       this.emit('update', current_str);
     }
 
+    this.prev_str = clipboard.readText();
     this.interval = setInterval(check_func, 500);
   }
 
