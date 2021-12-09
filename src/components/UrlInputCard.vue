@@ -1,7 +1,7 @@
 <template>
   <ui-card class="url-input-card">
     <div class="input-area">
-      <ui-input v-model:value="urlLocal" v-model:placeholder="placeholder" @change="updateUrl" @click.right.prevent="pasteUrl">URL</ui-input>
+      <ui-input v-model:value="url" v-model:placeholder="placeholder" @change="updateUrl" @click.right.prevent="pasteUrl">URL</ui-input>
     </div>
     <div class="border"></div>
     <div class="button-area">
@@ -32,12 +32,12 @@
 </style>
 
 <script>
+import store from '../store';
+import { ref } from 'vue';
 
 export default{
-  props: ['url'],
   data(){
     return {
-      urlLocal: this.url,
       placeholder: 'https://exmaple.com/text',
       download_button_text: 'Download!'
     }
@@ -50,20 +50,30 @@ export default{
         category: this.$store.state.current_category
       });
 
-      this.urlLocal = "";
+      this.url = "";
       this.updateUrl();
     },
 
     async pasteUrl(){
       const url = await navigator.clipboard.readText();
-      this.urlLocal = url;
+      this.url = url;
 
       this.updateUrl();
     },
 
     updateUrl(){
-      this.$store.commit('set_current_url', this.urlLocal);
+      this.$store.commit('set_current_url', this.url);
     },
+  },
+
+  setup(){
+    const url = ref(url);
+
+    store.watch((state, getters) => state.current_url, () => {
+      url.value = store.state.current_url;
+    });
+
+    return { url };
   }
 }
 </script>

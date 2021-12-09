@@ -37,7 +37,6 @@ import { onMounted, ref } from 'vue';
 import store from '../store';
 
 export default{
-  props: ['is_check_clipboard', 'is_auto_download'],
   data(){
     return {
       isCheckClipboardLocal: this.is_check_clipboard,
@@ -61,7 +60,12 @@ export default{
 
     const setupEvents = function(){
       window.api.onClipboardChange(function(text){
-        console.log(text);
+        if(this.isAutoDownloadLocal){
+          // download
+          console.log(text);
+        }else{
+          store.commit('set_current_url', text);
+        }
       });
     };
 
