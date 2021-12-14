@@ -85,8 +85,6 @@ export default{
       emit('update:value', !props.value);
     };
 
-    //onMounted(resetSelect);
-
     return {
       toggleValue
     }
