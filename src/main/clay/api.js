@@ -6,19 +6,18 @@ module.exports = class Clay{
   }
 
   trap(data){
-    var is_followed = false;
+    let is_followed = false;
 
     console.log(`start trap!\n  code: ${data.code}`);
 
-    for(var spell of this._core.spells){
-      if(!(spell.type && spell.type.follow) || spell.type.follow.code != data.code) continue;
+    for(const spell of this._core.spells){
+      if(!(spell.type.follow) || spell.type.follow.code != data.code) continue;
 
-      var follow = spell.type.follow;
+      const follow = spell.type.follow;
 
       console.log('follow');
 
       this._core._set_target_sns(follow.target_text);
-
       this._core.follow[spell.id][follow.exec](data);
       is_followed = true;
       break;
@@ -34,7 +33,7 @@ module.exports = class Clay{
   }
 
   log(...arg){
-    for(var a of arg) this._core.logger.log(`plugin: ${a}`);
+    for(const a of arg) this._core.logger.log(`plugin: ${a}`);
   }
 
   download(url, filename, save_dir, ref){

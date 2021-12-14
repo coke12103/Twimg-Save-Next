@@ -26,30 +26,31 @@ module.exports = class ClayCore extends EventEmitter{
     this.logger = new console.Console(this._stream);
   }
 
-  load_plugins_folder(orig_folder_path){
-    var folder_path = path.normalize(orig_folder_path);
+  load_plugins_folder(folder_path){
+    folder_path = path.normalize(folder_path);
 
     this.logger.log(`load plugins path: ${folder_path}`);
 
-    if(!fs.existsSync(folder_path)) throw new Error('plugins folder not found');
-    if(!fs.statSync(folder_path).isDirectory()) throw new Error('plugins folder path is not folder');
+    if((!fs.existsSync(folder_path)) || (!fs.statSync(folder_path).isDirectory())) throw new Error('plugins folder not found');
 
-    var file_list = fs.readdirSync(folder_path);
-    var plugin_spell_list = [];
+    const file_list = fs.readdirSync(folder_path);
+    const plugin_spell_list = [];
 
-    for(var item of file_list){
-      var item_path = path.join(folder_path, item);
+    for(const item of file_list){
+      const item_path = path.join(folder_path, item);
 
-      // jsファイル単体で読み込めるプラグインあってもいいかもしれない
-      if(!(fs.existsSync(item_path) && fs.statSync(item_path).isDirectory())) continue;
+      // TODO: jsファイル単体で読み込めるプラグインあってもいいかもしれない
+      if(!fs.statSync(item_path).isDirectory()) continue;
 
-      var spell_path = path.join(item_path, 'plugin-info.json');
+      const spell_path = path.join(item_path, 'plugin-info.json');
       if(!(fs.existsSync(spell_path) && !fs.statSync(spell_path).isDirectory())) continue;
 
       this.logger.log(`find plugin info!: `, spell_path);
 
+      let loaded_spell;
+
       try{
-        var loaded_spell = JSON.parse(fs.readFileSync(spell_path));
+        loaded_spell = JSON.parse(fs.readFileSync(spell_path));
         if(!loaded_spell) throw new Error('spell empty');
       }catch(err){
         this.logger.log(`parse or load failed!: ${spell_path}, ${err}`);
@@ -66,9 +67,9 @@ module.exports = class ClayCore extends EventEmitter{
       this.logger.log(`find plugin!: ${loaded_spell.name}`);
     }
 
-    var loaded_spells = [];
+    const loaded_spells = [];
 
-    for(var spell of plugin_spell_list){
+    for(const spell of plugin_spell_list){
       try{
         if(spell.type.source_addition){
           this.sources[spell.id] = this._plugin_require(path.join(spell.dir, spell.main));
@@ -93,11 +94,10 @@ module.exports = class ClayCore extends EventEmitter{
   }
 
   find_source_plugin(url){
-    var result = "";
+    let result = "";
 
     for(var spell of this.spells){
       if(!spell.type.source_addition || !spell.type.source_addition.regexp.test(url)) continue;
-
       result = spell.id;
 
       break;
@@ -106,57 +106,18 @@ module.exports = class ClayCore extends EventEmitter{
     return result;
   }
 
-  _find_exec(id){
-    const plugin = this.spells.find(el => el.id === id);
-    return plugin.type.source_addition.exec;
-  }
-
-  _find_target_text(id){
-    const plugin = this.spells.find(el => el.id === id);
-    return plugin.type.source_addition.target_text;
+  _get_plugin_spell(id){
+    return this.spells.find(el => el.id === id);
   }
 
   exec(plugin_id, url, save_dir, queue_id){
-    var exec = this._find_exec(plugin_id);
-    this._set_target_sns(this._find_target_text(plugin_id));
+    const plugin = this._get_plugin_spell(plugin_id);
+    const exec = plugin.type.source_addition.exec;
 
-    if(exec){
-      this.logger.log('v1 plugin exec.');
+    this._set_target_sns(plugin.type.source_addition.target_text);
+    this.logger.log('v1 plugin exec.');
 
-      return this.sources[plugin_id][exec].bind({Clay: this.api, QueueId: queue_id}, url, save_dir)();
-    }
-  }
-
-  find_source(url){
-    var source = {};
-
-    for(var spell of this.spells){
-      if(!spell.type.source_addition || !spell.type.source_addition.regexp.test(url)) continue;
-
-      var data = spell.type.source_addition;
-
-      this._set_target_sns(data.target_text);
-
-      source.id = spell.id;
-      source.exec = data.exec;
-
-      break;
-    }
-
-    this.logger.log(source.id);
-    return source;
-  }
-
-  exec_plugin(url, save_dir){
-    var source = this.find_source(url);
-
-    if(!source.id) return;
-
-    // source.idがあればsource.execがあることは(プラグイン側に問題がなければ)保証されている
-    if(source.exec){
-      this.logger.log('v1 plugin exec.');
-      this.sources[source.id][source.exec].bind({Clay: this.api}, url, save_dir)();
-    }
+    return this.sources[plugin_id][exec].bind({Clay: this.api, QueueId: queue_id}, url, save_dir)();
   }
 
   reset(){
@@ -170,15 +131,16 @@ module.exports = class ClayCore extends EventEmitter{
   }
 
   _plugin_require(main_path, filename = ''){
+    let main_code;
+
     try{
-      var main_code = fs.readFileSync(main_path, 'utf-8');
+      main_code = fs.readFileSync(main_path, 'utf-8');
     }catch(err){
       this.logger.log(err);
       throw err;
     }
 
-    var parent = module.parent || undefined;
-
+    const parent = module.parent || undefined;
     const _module = new Module(filename, parent);
 
     _module.filename = filename;
