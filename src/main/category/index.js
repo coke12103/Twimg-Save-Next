@@ -43,13 +43,13 @@ module.exports = class CategoryManager extends EventEmitter{
 
   load_categorys(){
     try{
-      var file = JSON.parse(fs.readFileSync(this.path, 'utf8'));
+      const file = JSON.parse(fs.readFileSync(this.path, 'utf8'));
 
       // 旧Twimg SaveのIDが数字なのに対してNextはUUIDから生成した文字列なので数字のIDがあるならIDを再生成する
       if(file.categorys.some((el) => typeof(el.id) === 'number')){
-        var result = { categorys: [] };
+        const result = { categorys: [] };
 
-        for(var cat of file.categorys){
+        for(const cat of file.categorys){
           if(typeof(cat.id) === 'number') cat.id = uuid.v4().split('-').join('');
 
           result.categorys.push(cat);
@@ -71,7 +71,7 @@ module.exports = class CategoryManager extends EventEmitter{
   }
 
   get(id){
-    var result = this.values.categorys.find(el => el.id === id);
+    const result = this.values.categorys.find(el => el.id === id);
 
     if(typeof(result) === 'undefined') throw "指定された値がありません";
 
@@ -81,9 +81,9 @@ module.exports = class CategoryManager extends EventEmitter{
   add(name, save_dir){
     if(!fs.existsSync(save_dir)) throw '指定されたディレクトリがありません';
 
-    var id = uuid.v4().split('-').join('');
+    const id = uuid.v4().split('-').join('');
 
-    var cat = {
+    const cat = {
       id: id,
       name: name,
       save_dir: save_dir
@@ -106,9 +106,9 @@ module.exports = class CategoryManager extends EventEmitter{
     if(!fs.existsSync(save_dir)) throw '指定されたディレクトリがありません';
     if(!this.values.categorys.some(el => el.id === id)) throw "指定された値がありません";
 
-    var result = { categorys: [] };
+    const result = { categorys: [] };
 
-    for(var el of this.values.categorys){
+    for(const el of this.values.categorys){
       if(el.id === id){
         el.name = name;
         el.save_dir = save_dir;
@@ -133,7 +133,7 @@ module.exports = class CategoryManager extends EventEmitter{
   del(id){
     if(!this.values.categorys.some(el => el.id === id)) throw "指定された値がありません";
 
-    var result = this.values.categorys.filter(el => el.id !== id);
+    const result = this.values.categorys.filter(el => el.id !== id);
 
     this.values.categorys = result;
 
