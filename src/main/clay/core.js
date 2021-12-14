@@ -58,11 +58,8 @@ module.exports = class ClayCore extends EventEmitter{
 
       loaded_spell.dir = item_path;
 
-      if(loaded_spell.spell_ver && loaded_spell.type.source_addition){
+      if(loaded_spell.type.source_addition){
         loaded_spell.type.source_addition.regexp = new RegExp(loaded_spell.type.source_addition.regexp, 'i');
-      }else{
-        if(loaded_spell.search_regexp) loaded_spell.search_regexp = new RegExp(loaded_spell.search_regexp, 'i');
-        loaded_spell.spell_ver = '';
       }
 
       plugin_spell_list.push(loaded_spell);
@@ -73,17 +70,12 @@ module.exports = class ClayCore extends EventEmitter{
 
     for(var spell of plugin_spell_list){
       try{
-        if(spell.spell_ver){
-          if(spell.type.source_addition){
-            this.sources[spell.id] = this._plugin_require(path.join(spell.dir, spell.main));
-            this.logger.log(`require to v1 plugin: ${spell.name}`);
-          }else if(spell.type.follow){
-            this.follow[spell.id] = this._plugin_require(path.join(spell.dir, spell.main));
-            this.logger.log(`require to follow plugin: ${spell.name}`);
-          }
-        }else{
+        if(spell.type.source_addition){
           this.sources[spell.id] = this._plugin_require(path.join(spell.dir, spell.main));
-          this.logger.log(`require to basic plugin: ${spell.name}`);
+          this.logger.log(`require to v1 plugin: ${spell.name}`);
+        }else if(spell.type.follow){
+          this.follow[spell.id] = this._plugin_require(path.join(spell.dir, spell.main));
+          this.logger.log(`require to follow plugin: ${spell.name}`);
         }
 
         loaded_spells.push(spell);
@@ -104,63 +96,34 @@ module.exports = class ClayCore extends EventEmitter{
     var result = "";
 
     for(var spell of this.spells){
-      if(spell.spell_ver){
-        if(!spell.type.source_addition || !spell.type.source_addition.regexp.test(url)) continue;
+      if(!spell.type.source_addition || !spell.type.source_addition.regexp.test(url)) continue;
 
-        result = spell.id;
+      result = spell.id;
 
-        break;
-      }else{
-        if(!(spell.search_regexp && spell.search_regexp.test(url))) continue;
-
-        result = spell.id;
-
-        break;
-      }
+      break;
     }
 
     return result;
   }
 
   _find_exec(id){
-    var source = null;
-
     const plugin = this.spells.find(el => el.id === id);
-
-    if(plugin.spell_ver){
-      source = plugin.type.source_addition.exec;
-    }else{
-      source = 'NONE';
-    }
-
-    return source;
+    return plugin.type.source_addition.exec;
   }
 
   _find_target_text(id){
-    var text = null;
-
     const plugin = this.spells.find(el => el.id === id);
-
-    if(plugin.spell_ver){
-      text = plugin.type.source_addition.target_text;
-    }else{
-      text = plugin.type;
-    }
-
-    return text;
+    return plugin.type.source_addition.target_text;
   }
 
   exec(plugin_id, url, save_dir, queue_id){
     var exec = this._find_exec(plugin_id);
     this._set_target_sns(this._find_target_text(plugin_id));
 
-    if(exec && exec != "NONE"){
+    if(exec){
       this.logger.log('v1 plugin exec.');
 
       return this.sources[plugin_id][exec].bind({Clay: this.api, QueueId: queue_id}, url, save_dir)();
-    }else{
-      this.logger.log('v0 plugin exec.');
-      return this.sources[plugin_id].bind({Clay: this.api, QueueId: queue_id}, url, save_dir)();
     }
   }
 
@@ -168,27 +131,16 @@ module.exports = class ClayCore extends EventEmitter{
     var source = {};
 
     for(var spell of this.spells){
-      if(spell.spell_ver){
-        if(!spell.type.source_addition || !spell.type.source_addition.regexp.test(url)) continue;
+      if(!spell.type.source_addition || !spell.type.source_addition.regexp.test(url)) continue;
 
-        var data = spell.type.source_addition;
+      var data = spell.type.source_addition;
 
-        this._set_target_sns(data.target_text);
+      this._set_target_sns(data.target_text);
 
-        source.id = spell.id;
-        source.exec = data.exec;
+      source.id = spell.id;
+      source.exec = data.exec;
 
-        break;
-      }else{
-        if(!(spell.search_regexp && spell.search_regexp.test(url))) continue;
-
-        this._set_target_sns(spell.type);
-
-        source.id = spell.id;
-        source.exec = 'NONE';
-
-        break;
-      }
+      break;
     }
 
     this.logger.log(source.id);
@@ -201,12 +153,9 @@ module.exports = class ClayCore extends EventEmitter{
     if(!source.id) return;
 
     // source.idがあればsource.execがあることは(プラグイン側に問題がなければ)保証されている
-    if(source.exec && source.exec != "NONE"){
+    if(source.exec){
       this.logger.log('v1 plugin exec.');
       this.sources[source.id][source.exec].bind({Clay: this.api}, url, save_dir)();
-    }else{
-      this.logger.log('v0 plugin exec.');
-      this.sources[source.id].bind({Clay: this.api}, url, save_dir)();
     }
   }
 
