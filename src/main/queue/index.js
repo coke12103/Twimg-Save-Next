@@ -14,7 +14,7 @@ module.exports = class QueueManager extends EventEmitter{
   init(clay){
     this.clay = clay;
 
-    for(var pl of this.clay.list_plugins()){
+    for(const pl of this.clay.list_plugins()){
       this.queues[pl.id] = new Queue(pl.id, this.clay);
 
       this.queues[pl.id].on('update', () => this.onUpdate());
@@ -23,7 +23,7 @@ module.exports = class QueueManager extends EventEmitter{
   }
 
   list_queue(){
-    var result = {};
+    const result = {};
 
     for(var queue in this.queues){
       result[this.queues[queue].id] = this.queues[queue].queue;
@@ -33,9 +33,9 @@ module.exports = class QueueManager extends EventEmitter{
   }
 
   add(url, save_dir){
-    var plugin = this.clay.find_source_plugin(url); // ret = id
+    const plugin_id = this.clay.find_source_plugin(url); // ret = id
 
-    if(!plugin) return;
+    if(!plugin_id) return;
 
     var queue = {
       url: url,
@@ -45,7 +45,7 @@ module.exports = class QueueManager extends EventEmitter{
       progress: 0
     };
 
-    this.queues[plugin].add(queue);
+    this.queues[plugin_id].add(queue);
   }
 
   onUpdate(){

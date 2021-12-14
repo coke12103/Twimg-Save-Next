@@ -24,7 +24,7 @@ module.exports = class Queue extends EventEmitter{
 
     this.is_downloading = true;
 
-    var queue = this.queue[0];
+    const queue = this.queue[0];
 
     try{
       // 実行開始時のみこちらで書き換えてやる。
