@@ -14,19 +14,19 @@ const pixiv = async function(url, save_dir){
     url = `https://${url}`;
   }
 
-  var opt = {
+  const opt = {
     url: url,
     method: 'GET'
   };
 
-  var pixiv_image_id = url.match(/([0-9]+)/)[0];
+  const pixiv_image_id = url.match(/([0-9]+)/)[0];
+
+  let image_data;
 
   try{
-    var body = await got(opt);
-    var dom = new JSDOM(body.body);
-    var parse_body = dom.window.document;
-
-    var image_data = JSON.parse(parse_body.querySelector("#meta-preload-data").content).illust[parseInt(pixiv_image_id)];
+    const body = await got(opt);
+    const dom = new JSDOM(body.body);
+    image_data = JSON.parse(dom.window.document.querySelector("#meta-preload-data").content).illust[parseInt(pixiv_image_id)];
   }catch(e){
     Clay.log(e);
     Clay.set_status_text('download error');
@@ -35,8 +35,8 @@ const pixiv = async function(url, save_dir){
     // notification.error_notification("HTMLも解析に失敗しました!\n仕様変更の可能性があります。開発者に連絡してください。");
   }
 
-  var image_url_orig = image_data.urls.original;
-  var is_ugoira = (image_data.illustType == 2)
+  const image_url_orig = image_data.urls.original;
+  const is_ugoira = (image_data.illustType == 2)
 
   Clay.log("Ugoira...?: " + is_ugoira);
 
@@ -46,10 +46,10 @@ const pixiv = async function(url, save_dir){
     throw 'Unsupported media';
   }
 
-  var extension = image_url_orig.match(/\.[a-zA-Z0-9]+$/);
-  var image_url_base = image_url_orig.replace(/0\.[a-zA-Z0-9]+$/, '');
-  var images_len = parseInt(image_data.pageCount);
-  var pixiv_user_id = image_data.userId;
+  const extension = image_url_orig.match(/\.[a-zA-Z0-9]+$/);
+  const image_url_base = image_url_orig.replace(/0\.[a-zA-Z0-9]+$/, '');
+  const images_len = parseInt(image_data.pageCount);
+  const pixiv_user_id = image_data.userId;
 
   Clay.log("image_url_sample: " + image_url_orig);
   Clay.log("image_url_base: " + image_url_base);
@@ -61,23 +61,23 @@ const pixiv = async function(url, save_dir){
   // Pixivは複数枚投稿で形式違いの場合jpgに変換をかける。
   // そのためリトライは回数ではなくフラグにする
   // 最初jpgなら最後までjpgで最初pngなら最後までpngなので。
-  var is_retry = false;
-  var image_count = 0;
+  let is_retry = false;
+  let image_count = 0;
 
   Clay.set_status_text("Get page: OK");
 
   while(images_len > image_count){
     if(is_retry) break;
 
-    var image_url, file_name;
-
-    image_url = image_url_base + image_count + extension;
-    file_name = `px_${pixiv_user_id}_${pixiv_image_id}_image${image_count}${extension}`;
+    const image_url = `${image_url_base}${image_count}${extension}`;
+    const file_name = `px_${pixiv_user_id}_${pixiv_image_id}_image${image_count}${extension}`;
 
     Clay.log(`current request url: ${image_url}`);
 
+    let result;
+
     try{
-      var result = await Clay.download(image_url, file_name, save_dir, url);
+      result = await Clay.download(image_url, file_name, save_dir, url);
     }catch(e){
       Clay.log(e);
     }

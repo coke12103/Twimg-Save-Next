@@ -10,21 +10,21 @@ const twitter = async function(url, save_dir){
   // mobile.twitter.comの場合があるがURLの形式変わらんので雑に変換する
   url = url.replace("mobile.", "");
 
-  var opt = {
+  const opt = {
     url: url,
     encoding: 'utf-8',
     method: 'GET',
     headers: { 'User-Agent': 'TenchaBot/0.1' }
   }
 
+  let parse_body;
   try{
-    var body = await got(opt);
-    body = body.body;
+    const body = await got(opt);
 
     Clay.set_status_text("Get page: OK");
 
-    var dom = new JSDOM(body);
-    var parse_body = dom.window.document;
+    const dom = new JSDOM(body.body);
+    parse_body = dom.window.document;
   }catch(e){
     Clay.log(e);
 //    notification.basic_error("投稿を取得することができませんでした!");
@@ -32,34 +32,29 @@ const twitter = async function(url, save_dir){
     throw e;
   }
 
-  var user_id_and_status_id = url.replace("https://twitter.com/", "");
+  const user_id_and_status_id = url.replace("https://twitter.com/", "");
 
-  var user_id = user_id_and_status_id.match(/^(.+)(\/status\/)/)[1];
-  var status_id = user_id_and_status_id.match(/(\/status\/)([0-9]+)/)[2];
+  const user_id = user_id_and_status_id.match(/^(.+)(\/status\/)/)[1];
+  const status_id = user_id_and_status_id.match(/(\/status\/)([0-9]+)/)[2];
 
   Clay.log(user_id);
   Clay.log(status_id);
 
-  var image_count = 0;
+  let image_count = 0;
 
-  // CSSのセレクタを利用してpropertyを参照する
-  // これはjsdomだとmeta_tag.propertyがないElementが返ってくるため
-  var metas = parse_body.querySelectorAll('meta[property="og:image"]');
-
-  for(var i = 0; i < metas.length; i++){
-    var meta_tag = metas[i];
-    // TODO: video
-
-    var media_url = meta_tag.content.replace("large", "orig");
+  for(const meta_tag of parse_body.querySelectorAll('meta[property="og:image"]')){
+    const media_url = meta_tag.content.replace("large", "orig");
     Clay.log(media_url);
 
-    // profile_imagesがあるってことは画像付いてないってこと？
+    // profile_imagesがあるってことは画像付いてないってことと解釈する
+    // いつか仕様が変わるかもしれない
     if(media_url.match(/profile_images/)){
       Clay.set_status_text("No Image File");
 //      notification.no_file_error();
       throw 'No Image File';
     }
 
+    // TODO: video
     // videoとimageは共存しない
     if(media_url.match(/tweet_video_thumb|ext_tw_video_thumb/)){
       Clay.set_status_text("Unsupported media");
@@ -67,8 +62,8 @@ const twitter = async function(url, save_dir){
       throw 'Unsupported media';
     }
 
-    var extension = media_url.match(/(\/media\/)(.+)(\.[a-zA-Z0-9]+)(:[a-zA-Z]+)$/)[3];
-    var file_name = `tw_${user_id}_${status_id}_image${image_count}${extension}`;
+    const extension = media_url.match(/(\/media\/)(.+)(\.[a-zA-Z0-9]+)(:[a-zA-Z]+)$/)[3];
+    const file_name = `tw_${user_id}_${status_id}_image${image_count}${extension}`;
 
     try{
       await Clay.download(media_url, file_name, save_dir);
@@ -84,7 +79,7 @@ const twitter = async function(url, save_dir){
 
   // 1枚以下なら割と死なのでないよーって出す
   if(image_count < 1){
-//    notification.basic_error("画像がみつかりませんでした!\nHint: Twimg Saveは鍵アカウントの投稿には対応していません。\n凍結されたアカウントの投稿も同様に対応していません。");
+//    notification.basic_error("画像がみつかりませんでした!");
     Clay.set_status_text("download error");
     throw 'download error';
   }
