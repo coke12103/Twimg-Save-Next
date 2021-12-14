@@ -52,7 +52,7 @@ export default {
       })
 
       window.api.onConsoleLog(function(arg){
-        var content = Buffer.from(arg);
+        const content = Buffer.from(arg);
         console.log(`%ccore:%c ${content.toString()}`, 'color: orange;', '');
       });
     };

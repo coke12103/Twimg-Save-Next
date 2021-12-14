@@ -47,7 +47,7 @@ async function createWindow() {
     console.log(e);
   }
 
-  for(var val of bounds_template) bounds[val.id] = val.id in bounds_file ? bounds_file[val.id] : val.default_value;
+  for(const val of bounds_template) bounds[val.id] = val.id in bounds_file ? bounds_file[val.id] : val.default_value;
 
   // Create the browser window.
   win = new BrowserWindow({
@@ -114,7 +114,7 @@ function init_core(){
     clay_core.logger.log(`category: ${data.category}`)
 
     try{
-      let save_dir = categorys.get(data.category).save_dir;
+      const save_dir = categorys.get(data.category).save_dir;
 
       queues.add(data.url, save_dir);
     }catch(err){
