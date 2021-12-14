@@ -25,9 +25,9 @@ module.exports = class SettingsManager extends EventEmitter{
   }
 
   create_default_settings(){
-    let default_settings = {};
+    const default_settings = {};
 
-    for(var setting of settings_template.values){
+    for(const setting of settings_template.values){
       default_settings[setting.id] = setting.default_value;
     }
 
@@ -41,9 +41,9 @@ module.exports = class SettingsManager extends EventEmitter{
 
   load_settings(){
     try{
-      var file = JSON.parse(fs.readFileSync(this.path, 'utf8'));
+      const file = JSON.parse(fs.readFileSync(this.path, 'utf8'));
 
-      for(var setting of settings_template.values){
+      for(const setting of settings_template.values){
         this.values[setting.id] = setting.id in file ? file[setting.id] : setting.default_value;
       }
     }catch(err){
