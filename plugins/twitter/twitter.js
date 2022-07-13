@@ -38,33 +38,53 @@ const twitter = async function(url, save_dir){
     throw e;
   }
 
-  // これ無いと画像ないけど動画だとどうなんだろ
-  if(!'photos' in body){
+  if(!'photos' in body && !'video' in body){
     Clay.log("no_image_found");
 //    notification.basic_error("画像がみつかりませんでした!");
     Clay.set_status_text("No image found");
     throw 'no_image_found';
   }
 
-  let image_count = 0;
-  for(const photo of body.photos){
-    // origって効くのか知らないけどアクセスできるしこれで生成されるURLは旧実装系の内部で使われてるやつと同じなので気にしない
-    const media_url = photo.url + ":orig";
+  // videoがないのであれば画像なので画像の処理
+  if(!'video' in body){
+    let image_count = 0;
+    for(const photo of body.photos){
+      // origって効くのか知らないけどアクセスできるしこれで生成されるURLは旧実装系の内部で使われてるやつと同じなので気にしない
+      const media_url = photo.url + ":orig";
+      console.log(media_url)
+      Clay.log(media_url);
+
+      const extension = media_url.match(/(\/media\/)(.+)(\.[a-zA-Z0-9]+)(:[a-zA-Z]+)$/)[3];
+      const file_name = `tw_${user_id}_${status_id}_image${image_count}${extension}`;
+
+      try{
+        await Clay.download(media_url, file_name, save_dir);
+      }catch(e){
+        Clay.log(e);
+  //      notification.basic_error("ファイルの書き込みに失敗しました!\nHint: 保存先に指定されたフォルダが消えていませんか？消えていないならそのフォルダに書き込み権限はありますか？");
+        Clay.set_status_text("download error");
+        throw e;
+      }
+      image_count++;
+    }
+  }else{
+    // 多分0番目が一番品質いいと思う。実際そうなのかは知らない。
+    Clay.log(body.video);
+    const media_url = body.video.variants[0].src;
     console.log(media_url)
     Clay.log(media_url);
 
-    const extension = media_url.match(/(\/media\/)(.+)(\.[a-zA-Z0-9]+)(:[a-zA-Z]+)$/)[3];
-    const file_name = `tw_${user_id}_${status_id}_image${image_count}${extension}`;
+    // サンプル数2でmp4だと決め付けてみる
+    const file_name = `tw_${user_id}_${status_id}_image0.mp4`;
 
-    try{
-      await Clay.download(media_url, file_name, save_dir);
-    }catch(e){
-      Clay.log(e);
-//      notification.basic_error("ファイルの書き込みに失敗しました!\nHint: 保存先に指定されたフォルダが消えていませんか？消えていないならそのフォルダに書き込み権限はありますか？");
-      Clay.set_status_text("download error");
-      throw e;
-    }
-    image_count++;
+      try{
+        await Clay.download(media_url, file_name, save_dir);
+      }catch(e){
+        Clay.log(e);
+  //      notification.basic_error("ファイルの書き込みに失敗しました!\nHint: 保存先に指定されたフォルダが消えていませんか？消えていないならそのフォルダに書き込み権限はありますか？");
+        Clay.set_status_text("download error");
+        throw e;
+      }
   }
 
   Clay.set_status_text('Download done.');
