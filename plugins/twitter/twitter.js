@@ -38,7 +38,7 @@ const twitter = async function(url, save_dir){
     throw e;
   }
 
-  if(!'photos' in body && !'video' in body){
+  if(!('photos' in body) && !('video' in body)){
     Clay.log("no_image_found");
 //    notification.basic_error("画像がみつかりませんでした!");
     Clay.set_status_text("No image found");
@@ -46,7 +46,7 @@ const twitter = async function(url, save_dir){
   }
 
   // videoがないのであれば画像なので画像の処理
-  if(!'video' in body){
+  if(!('video' in body)){
     let image_count = 0;
     for(const photo of body.photos){
       // origって効くのか知らないけどアクセスできるしこれで生成されるURLは旧実装系の内部で使われてるやつと同じなので気にしない
